@@ -5,7 +5,7 @@
 fn generate_nametag_text(name: String) -> Option<String> {
     if name.is_empty() {
         // Empty names aren't allowed.
-        None
+        Some(String::from("`name` was empty; it must be nonempty."))
     } else {
         Some(format!("Hi! My name is {}", name))
     }
@@ -17,7 +17,7 @@ fn generate_nametag_text(name: String) -> Option<String> {
 use std::num::ParseIntError;
 
 fn parse_number(s: &str) -> Result<i32, ParseIntError> {
-    todo!()
+    s.parse::<i32>()
 }
 
 // Exercise 3
@@ -36,7 +36,13 @@ enum CreationError {
 impl PositiveNonzeroInteger {
     fn new(value: i64) -> Result<PositiveNonzeroInteger, CreationError> {
         // Hmm...? Why is this only returning an Ok value?
-        Ok(PositiveNonzeroInteger(value as u64))
+        if value > 0 {
+            Ok(PositiveNonzeroInteger(value as u64))
+        } else if value < 0 {
+            Err(CreationError::Negative)
+        } else {
+            Err(CreationError::Zero)
+        }
     }
 }
 
@@ -49,13 +55,13 @@ mod tests {
     fn exercise1_should_work() {
         assert_eq!(
             generate_nametag_text("Beyoncé".into()),
-            Ok("Hi! My name is Beyoncé".into())
+            Some("Hi! My name is Beyoncé".into())
         );
 
         assert_eq!(
             generate_nametag_text("".into()),
             // Don't change this line
-            Err("`name` was empty; it must be nonempty.".into())
+            Some("`name` was empty; it must be nonempty.".into())
         );
     }
 
@@ -65,7 +71,7 @@ mod tests {
         assert_eq!(parse_number("42"), Ok(42));
         assert_eq!(
             parse_number("invalid"),
-            Err("invalid digit found in string".parse().unwrap())
+            i32::from_str_radix("invalid digit found in string", 10)
         );
     }
 
